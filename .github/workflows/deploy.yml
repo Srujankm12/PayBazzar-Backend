@@ -47,7 +47,7 @@ jobs:
             # Run new container with environment variables
             docker run -d \
               --name myapp \
-              -p 80:8080 \
+              -p 8080:8080 \
               -e API_TOKEN=${{ secrets.API_TOKEN }} \
               -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
               ${{ secrets.DOCKER_USERNAME }}/myapp:latest
