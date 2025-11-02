@@ -3,7 +3,7 @@ name: Deploy to DigitalOcean
 on:
   push:
     branches:
-      - main  # Run workflow on push to main branch
+      - main
 
 jobs:
   build-and-deploy:
@@ -27,7 +27,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/myapp:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/enquiry_application:latest
 
       - name: SSH into DigitalOcean and deploy
         uses: appleboy/ssh-action@v1.1.0
@@ -38,16 +38,16 @@ jobs:
           passphrase: ${{ secrets.DO_PASSPHRASE }}
           script: |
             # Pull latest Docker image
-            docker pull ${{ secrets.DOCKER_USERNAME }}/myapp:latest
+            docker pull ${{ secrets.DOCKER_USERNAME }}/enquiry_application:latest
 
             # Stop and remove old container if exists
-            docker stop myapp || true
-            docker rm myapp || true
+            docker stop enquiry_application || true
+            docker rm enquiry_application || true
 
             # Run new container with environment variables
             docker run -d \
-              --name myapp \
+              --name enquiry_application \
               -p 8080:8080 \
               -e API_TOKEN=${{ secrets.API_TOKEN }} \
               -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
-              ${{ secrets.DOCKER_USERNAME }}/myapp:latest
+              ${{ secrets.DOCKER_USERNAME }}/enquiry_application:latest
