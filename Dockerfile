@@ -1,29 +1,42 @@
-# Use a lightweight base image
+# ---------- Build stage ----------
 FROM golang:1.24.5-alpine AS builder
 
-# Set the working directory
-WORKDIR /app
+# Faster builds: install build deps
+RUN apk add --no-cache git
 
-# Copy go.mod and go.sum to download dependencies
+# Where your Go module root will be inside the container
+WORKDIR /src
+
+# Only copy go.mod/sum first to cache deps
 COPY go.mod go.sum ./
 RUN go mod download
 
-# Copy the rest of the code
+# Copy the rest of your source
 COPY . .
 
-# Build the application
-RUN go build -o main .
+# Build target: the path to the package with "package main"
+# Example: ./cmd/server or ./backend/cmd/api or . (for root)
+ARG BUILD_TARGET=./cmd/server
 
-# Use a smaller runtime image
-FROM alpine:latest
+# Build a small, static binary
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+    go build -trimpath -ldflags="-s -w" -o /out/app ${BUILD_TARGET}
 
-WORKDIR /root/
+# ---------- Runtime stage ----------
+# Use scratch for tiniest image; switch to alpine if you need shell/ca-certs
+FROM gcr.io/distroless/base-debian12
 
-# Copy the binary from the builder stage
-COPY --from=builder /app/main .
+# Optional: add a non-root user (distroless already runs as nonroot by default)
+USER nonroot:nonroot
 
-# Expose port (change if needed)
+WORKDIR /app
+COPY --from=builder /out/app /app/app
+
+# Change if your app listens elsewhere
 EXPOSE 8080
 
-# Command to run the application
-CMD ["./main"]
+# Pass envs at runtime (from Actions step)
+ENV GIN_MODE=release
+
+# Run
+ENTRYPOINT ["/app/app"]
