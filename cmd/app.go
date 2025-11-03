@@ -17,6 +17,7 @@ import (
 	ott_handlers "github.com/paybazar-backend/internals/handlers/Ott"
 	prepaidmobilerecharge_handlers "github.com/paybazar-backend/internals/handlers/PrepaidMobileRecharge"
 	prepaidplanfetch_handlers "github.com/paybazar-backend/internals/handlers/PrepaidPlanFetch"
+	payouthandlers "github.com/paybazar-backend/internals/handlers/payout"
 	electricitybillfetch_repository "github.com/paybazar-backend/internals/repository/BillPayments/ElectricityBill"
 	electricitybillpayment_repository "github.com/paybazar-backend/internals/repository/BillPayments/ElectricityRecharge"
 	postpaidbill_repository "github.com/paybazar-backend/internals/repository/BillPayments/postpaidBillFetch"
@@ -26,6 +27,7 @@ import (
 	ott_repository "github.com/paybazar-backend/internals/repository/Ott"
 	prepaidmobilerecharge_repository "github.com/paybazar-backend/internals/repository/PrepaidMobileRecharge"
 	prepaidplanfetch_repository "github.com/paybazar-backend/internals/repository/PrepaidPlanFetch"
+	payoutrepo "github.com/paybazar-backend/internals/repository/payout"
 	electricitybillfetch_service "github.com/paybazar-backend/internals/service/BillPayments/ElectricityBill"
 	electricitybillpayment_service "github.com/paybazar-backend/internals/service/BillPayments/ElectricityRecharge"
 	postpaidbill_service "github.com/paybazar-backend/internals/service/BillPayments/postpaidBillFetch"
@@ -35,6 +37,7 @@ import (
 	ott_service "github.com/paybazar-backend/internals/service/Ott"
 	prepaidmobilerecharge_service "github.com/paybazar-backend/internals/service/PrepaidMobileRecharge"
 	prepaidplanfetch_service "github.com/paybazar-backend/internals/service/PrepaidPlanFetch"
+	payoutservice "github.com/paybazar-backend/internals/service/payout"
 	"github.com/paybazar-backend/pkg/database"
 )
 
@@ -99,10 +102,12 @@ func InitializeApp() *echo.Echo {
 	MoneyTransferService := moneytranfer_service.NewMoneyTransferService(MoneyTransfer, apiBaseURL, apiToken)
 	MoneyTransferHandler := moneytransfer_handlers.NewMoneyTransferHandler(MoneyTransferService)	
 
-
+	PayoutRepo := payoutrepo.NewPayoutRepo(db)
+	PayoutService := payoutservice.NewPayoutService(PayoutRepo, apiBaseURL, apiToken)
+	PayoutHandler := payouthandlers.NewPayoutHandler(PayoutService)
 
 	e := echo.New()
-	SetupRouter(e, rechargeHandler, prepaidPlanHandler, dthHandler, ottPlanHandler, ottSubscriptionHandler, PostpaidBillFetchHandler, PostpaidMobileRechargeHandler, ElectricityBillFetchHandler, ElectricityBillPaymentHandler, WalletCreateHandler, BeneficiaryHandler, MoneyTransferHandler)
+	SetupRouter(e, rechargeHandler, prepaidPlanHandler, dthHandler, ottPlanHandler, ottSubscriptionHandler, PostpaidBillFetchHandler, PostpaidMobileRechargeHandler, ElectricityBillFetchHandler, ElectricityBillPaymentHandler, WalletCreateHandler, BeneficiaryHandler, MoneyTransferHandler, PayoutHandler)
 
 	return e
 }

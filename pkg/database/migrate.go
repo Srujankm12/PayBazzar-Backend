@@ -301,6 +301,26 @@ func RunMigrations(db *sql.DB) {
 		api_response JSONB,
 		created_at TIMESTAMP DEFAULT NOW()
 	);
+	-- file: migrations/2025xxxx_create_payout_table.sql  (or include in database.RunMigrations)
+CREATE TABLE IF NOT EXISTS payout_transactions (
+    id SERIAL PRIMARY KEY,
+    mobile_no VARCHAR(15) NOT NULL,
+    account_no VARCHAR(50) NOT NULL,
+    ifsc VARCHAR(20) NOT NULL,
+    bank_name VARCHAR(150),
+    beneficiary_name VARCHAR(150),
+    amount NUMERIC NOT NULL,
+    transfer_type VARCHAR(10), -- e.g., "5" for IMPS, "6" for NEFT
+    partner_request_id VARCHAR(200) NOT NULL,
+    api_error INT,
+    api_msg TEXT,
+    api_status INT,
+    order_id VARCHAR(200),
+    optransid VARCHAR(200),
+    partnerreqid VARCHAR(200),
+    api_response JSONB,
+    created_at TIMESTAMP DEFAULT NOW()
+);
 
 	`
 

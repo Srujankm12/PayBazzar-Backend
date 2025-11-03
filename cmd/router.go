@@ -11,6 +11,7 @@ import (
 	ott_handlers "github.com/paybazar-backend/internals/handlers/Ott"
 	prepaidmobilerecharge_handlers "github.com/paybazar-backend/internals/handlers/PrepaidMobileRecharge"
 	prepaidplanfetch_handlers "github.com/paybazar-backend/internals/handlers/PrepaidPlanFetch"
+	payouthandlers "github.com/paybazar-backend/internals/handlers/payout"
 )
 
 func SetupRouter(
@@ -27,6 +28,7 @@ func SetupRouter(
 	WalletCreateHandler *moneytransfer_handlers.WalletHandler,
 	BeneficiaryHandler *moneytransfer_handlers.BeneficiaryHandler,
 	MoneyTransferHandler *moneytransfer_handlers.MoneyTransferHandler,
+	PayoutHandler *payouthandlers.PayoutHandler,
 	
 	
 ) {
@@ -79,7 +81,8 @@ func SetupRouter(
 	Beneficiary.GET("",BeneficiaryHandler.VerifyDeleteBeneficiaryHandler)
 
 	
-
+	payout := e.Group("/payout")
+	payout.POST("/initiate", PayoutHandler.InitiatePayout)
 
 }
 	
